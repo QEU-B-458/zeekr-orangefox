@@ -14,7 +14,8 @@ ALLOW_MISSING_DEPENDENCIES := true
 
 # A/B
 AB_OTA_UPDATER := true
-BOARD_BUILD_SYSTEM_ROOT_IMAGE := false
+# BOARD_BUILD_SYSTEM_ROOT_IMAGE is obsolete on Android 16 (system-as-root is
+# universal); even assigning it triggers a KATI_obsolete_var hard error. Removed.
 AB_OTA_PARTITIONS += \
     boot \
     dtbo \
