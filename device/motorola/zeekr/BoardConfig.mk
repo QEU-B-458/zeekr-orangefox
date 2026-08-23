@@ -196,7 +196,7 @@ BOARD_USES_METADATA_PARTITION := true
 
 # TWRP Configuration
 TW_DEVICE_VERSION := zeekr
-TW_THEME := portrait_hd
+TW_THEME := portrait_hdpi
 TW_INPUT_BLACKLIST := "hbtp_vm"
 TW_INCLUDE_REPACKTOOLS := true
 TW_INCLUDE_RESETPROP := true
