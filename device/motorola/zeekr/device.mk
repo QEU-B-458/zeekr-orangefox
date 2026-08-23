@@ -10,7 +10,14 @@ PRODUCT_SOONG_NAMESPACES += \
     $(LOCAL_PATH)
 
 # API
-BOARD_SHIPPING_API_LEVEL := 31
+# NOTE: BOARD_SHIPPING_API_LEVEL is intentionally NOT set. On Android 16,
+# product_config.mk enters a GRF branch under `ifdef BOARD_SHIPPING_API_LEVEL`
+# that does `math_min($(VSR_VENDOR_API_LEVEL),$(RELEASE_BOARD_API_LEVEL))`.
+# RELEASE_BOARD_API_LEVEL is a release-config flag that isn't defined in the
+# public build/release (Google moved the base configs private), so it's empty
+# and math_min aborts with "Argument missing" (product_config.mk:629). A recovery
+# doesn't need the GRF vendor-API declaration; PRODUCT_SHIPPING_API_LEVEL alone
+# drives VSR_VENDOR_API_LEVEL on the clean path.
 BOARD_API_LEVEL := 31
 PRODUCT_SHIPPING_API_LEVEL := 31
 SHIPPING_API_LEVEL := 31
