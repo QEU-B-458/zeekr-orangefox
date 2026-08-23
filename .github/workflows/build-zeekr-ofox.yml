@@ -172,6 +172,15 @@ jobs:
           cd "$HOME/fox16"
           echo "===== 设备树 PRODUCT 变量 ====="
           grep -E "PRODUCT_CHECK_PREBUILT|PRODUCT_USE_DYNAMIC|PRODUCT_MODEL" device/motorola/zeekr/twrp_zeekr.mk device/motorola/zeekr/BoardConfig.mk 2>/dev/null
+          echo "===== RELEASE-CONFIG LAYOUT (diagnose 'Missing config trunk') ====="
+          echo "-- build/release exists? --"; ls -la build/release 2>/dev/null | head
+          echo "-- all release_config_map.textproto --"
+          find build/release device vendor -name 'release_config_map.textproto' 2>/dev/null
+          echo "-- all release_configs/*.textproto (names) --"
+          find build/release device vendor -path '*release_configs*' -name '*.textproto' 2>/dev/null | sed 's#.*/##' | sort -u | head -40
+          echo "-- flag_declarations / trunk refs --"
+          find build/release -name 'trunk*.textproto' 2>/dev/null
+          echo "-- RELEASE_* env --"; env | grep -i '^RELEASE' | head
           echo "===== source envsetup.sh ====="
           source build/envsetup.sh
           # Android 16 requires the new lunch format <product>-<release>-<variant>;
