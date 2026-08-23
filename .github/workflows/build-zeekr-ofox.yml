@@ -65,7 +65,7 @@ jobs:
           # 上一次构建就是 soong_build 自举完成后静默 OOM，runner 被回收(exit 143)。
           sudo swapoff -a || true
           sudo rm -f /mnt/swapfile
-          sudo fallocate -l 12G /mnt/swapfile
+          sudo fallocate -l 40G /mnt/swapfile
           sudo chmod 600 /mnt/swapfile
           sudo mkswap /mnt/swapfile
           sudo swapon /mnt/swapfile
@@ -315,7 +315,7 @@ jobs:
         run: |
           sudo swapoff -a || true
           sudo rm -f /mnt/swapfile
-          sudo fallocate -l 12G /mnt/swapfile
+          sudo fallocate -l 40G /mnt/swapfile
           sudo chmod 600 /mnt/swapfile
           sudo mkswap /mnt/swapfile
           sudo swapon /mnt/swapfile
