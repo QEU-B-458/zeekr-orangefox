@@ -43,6 +43,12 @@ PRODUCT_CHECK_PREBUILT_MAX_PAGE_SIZE := false
 # the product to 4096 — this makes every 16K ELF-alignment check pass at once.
 PRODUCT_MAX_PAGE_SIZE_SUPPORTED := 4096
 
+# A recovery product doesn't normally set this, but A16's product_config.mk feeds
+# PRODUCT_SHIPPING_API_LEVEL into VSR_VENDOR_API_LEVEL and then into math_gt/math_min;
+# when it's empty those macros abort with "Argument missing". zeekr launched on
+# Android 13, so pin API level 33 to keep the VSR/API-level math well-defined.
+PRODUCT_SHIPPING_API_LEVEL := 33
+
 PRODUCT_GMS_CLIENTID_BASE := android-motorola
 
 PRODUCT_BUILD_PROP_OVERRIDES += \

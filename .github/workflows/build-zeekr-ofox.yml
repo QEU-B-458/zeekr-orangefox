@@ -184,6 +184,8 @@ jobs:
             printf 'name: "trunk_staging"\ninherits: "trunk"\n' > "$RC/trunk_staging.textproto"
           fi
           echo "-- trunk configs now present --"; ls -la "$RC"/trunk*.textproto
+          echo "-- product_config.mk:615-645 (the 'Argument missing' region) --"
+          sed -n '615,645p' build/make/core/product_config.mk 2>/dev/null
 
       - name: 🔍 诊断产品配置与 lunch
         run: |
