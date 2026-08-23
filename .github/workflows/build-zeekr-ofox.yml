@@ -167,6 +167,24 @@ jobs:
             exit 1
           fi
 
+      - name: 🩹 recreate trunk/trunk_staging release configs (A16 build/release lacks them)
+        run: |
+          cd "$HOME/fox16"
+          RC=build/release/release_configs
+          echo "-- schema reference: bp1a.textproto --"
+          sed -n '1,60p' "$RC/bp1a.textproto" 2>/dev/null || echo "(no bp1a)"
+          echo "-- release_config_map.textproto (top) --"
+          sed -n '1,40p' build/release/release_config_map.textproto 2>/dev/null
+          # Google moved the base trunk/trunk_staging configs to a private repo, so the
+          # public build/release only ships dated configs (bp1a...) that INHERIT trunk ->
+          # release_config panics "Missing config trunk". Recreate minimal bases.
+          if [ ! -f "$RC/trunk.textproto" ]; then
+            echo ">>> creating trunk.textproto + trunk_staging.textproto"
+            printf 'name: "trunk"\n' > "$RC/trunk.textproto"
+            printf 'name: "trunk_staging"\ninherits: "trunk"\n' > "$RC/trunk_staging.textproto"
+          fi
+          echo "-- trunk configs now present --"; ls -la "$RC"/trunk*.textproto
+
       - name: 🔍 诊断产品配置与 lunch
         run: |
           cd "$HOME/fox16"
