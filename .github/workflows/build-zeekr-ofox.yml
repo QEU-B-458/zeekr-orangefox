@@ -174,13 +174,19 @@ jobs:
           grep -E "PRODUCT_CHECK_PREBUILT|PRODUCT_USE_DYNAMIC|PRODUCT_MODEL" device/motorola/zeekr/twrp_zeekr.mk device/motorola/zeekr/BoardConfig.mk 2>/dev/null
           echo "===== source envsetup.sh ====="
           source build/envsetup.sh
-          echo "===== lunch twrp_zeekr-eng ====="
-          lunch twrp_zeekr-eng 2>&1 | tee /tmp/lunch.log
-          rc=${PIPESTATUS[0]}
-          if [ "$rc" -ne 0 ]; then
-            echo "❌ lunch 失败 exit=$rc"
-            exit $rc
-          fi
+          # Android 16 requires the new lunch format <product>-<release>-<variant>;
+          # the old 2-part "twrp_zeekr-eng" is rejected. Auto-detect the release the
+          # synced source actually provides instead of hardcoding one.
+          echo "===== lunch (A16 needs <product>-<release>-<variant>) ====="
+          set +e; LUNCH_OK=0
+          for REL in trunk_staging bp1a bp2a ap4a ap3a trunk; do
+            echo "-- trying twrp_zeekr-$REL-eng"
+            if lunch "twrp_zeekr-$REL-eng" >/tmp/lunch.log 2>&1; then
+              echo "✅ valid release: $REL"; echo "$REL" > /tmp/zeekr_release; LUNCH_OK=1; break
+            fi
+          done
+          set -e
+          if [ "$LUNCH_OK" -ne 1 ]; then echo "❌ no valid release combo found"; tail -30 /tmp/lunch.log; exit 1; fi
           echo "===== product_config.json 检查 ====="
           cat out/target/product/zeekr/product_config.json 2>/dev/null | head -30 || echo "product_config.json 不存在"
           echo "===== soong 变量 ====="
@@ -208,7 +214,16 @@ jobs:
           ccache -z
           source build/envsetup.sh
           export FOX_BUILD_DEVICE=zeekr
-          lunch twrp_${{ env.DEVICE_16 }}-eng
+          # A16 lunch needs a release token; reuse the one detected in the diagnose
+          # step, else re-detect here (steps share the runner filesystem via /tmp).
+          REL="$(cat /tmp/zeekr_release 2>/dev/null)"
+          if [ -z "$REL" ]; then
+            for r in trunk_staging bp1a bp2a ap4a ap3a trunk; do
+              lunch "twrp_${{ env.DEVICE_16 }}-$r-eng" >/dev/null 2>&1 && { REL="$r"; break; }
+            done
+          fi
+          echo "using release: ${REL:-trunk_staging}"
+          lunch "twrp_${{ env.DEVICE_16 }}-${REL:-trunk_staging}-eng"
           set -eo pipefail
           mka recoveryimage 2>&1 | tee /tmp/build16.log
           rc=${PIPESTATUS[0]}
